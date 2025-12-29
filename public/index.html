@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comet Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="login-box">
+                <div class="login-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Comet Admin Panel</h1>
+                    <p>User Management System</p>
+                </div>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="loginUsername" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                    <div id="2faGroup" class="input-group" style="display: none;">
+                        <i class="fas fa-key"></i>
+                        <input type="text" id="login2FA" placeholder="2FA Code" maxlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+                <div id="loginError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardPage" class="page">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-bolt"></i>
+                <h2>Comet</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-page="users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="#" class="nav-item" data-page="licenses">
+                    <i class="fas fa-key"></i> Licenses
+                </a>
+                <a href="#" class="nav-item" data-page="activity">
+                    <i class="fas fa-history"></i> Activity Logs
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="topbar-right">
+                    <span class="user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="currentUsername"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard View -->
+                <div id="dashboardView" class="view active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalUsers">0</h3>
+                                <p>Total Users</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="activeSubscriptions">0</h3>
+                                <p>Active Subscriptions</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon yellow">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="unusedLicenses">0</h3>
+                                <p>Unused Licenses</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon red">
+                                <i class="fas fa-ban"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="bannedUsers">0</h3>
+                                <p>Banned Users</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>User Growth (Last 30 Days)</h3>
+                            <canvas id="userGrowthChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Subscription Types Distribution</h3>
+                            <canvas id="subscriptionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <h3>Expiring Soon</h3>
+                        <table id="expiringSoonTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Subscription</th>
+                                    <th>Expiry Date</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users View -->
+                <div id="usersView" class="view">
+                    <div class="table-actions">
+                        <button class="btn-primary" id="addUserBtn">
+                            <i class="fas fa-plus"></i> Add User
+                        </button>
+                        <input type="text" id="userSearch" placeholder="Search users...">
+                    </div>
+                    <div class="table-card">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Licenses View -->
+                <div id="licensesView" class="view">
+                    <div class="table-actions">
+                        <button class="btn-primary" id="generateLicensesBtn">
+                            <i class="fas fa-plus"></i> Generate Licenses
+                        </button>
+                        <button class="btn-secondary" id="exportLicensesBtn">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="table-card">
+                        <table id="licensesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>License Key</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Activity Logs View -->
+                <div id="activityView" class="view">
+                    <div class="table-card">
+                        <table id="activityTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>IP Address</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="settingsView" class="view">
+                    <div class="settings-card">
+                        <h3>Account Settings</h3>
+                        <form id="changePasswordForm">
+                            <div class="input-group">
+                                <label>Current Password</label>
+                                <input type="password" id="currentPassword" required>
+                            </div>
+                            <div class="input-group">
+                                <label>New Password</label>
+                                <input type="password" id="newPassword" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Change Password</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>Two-Factor Authentication</h3>
+                        <button id="enable2FABtn" class="btn-primary">Enable 2FA</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="modal-overlay"></div>
+    
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h2>Add User</h2>
+            <form id="userForm">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="userUsername" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="userPassword" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="userEmail">
+                </div>
+                <div class="input-group">
+                    <label>HWID</label>
+                    <input type="text" id="userHWID">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Create</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="licenseModal" class="modal">
+        <div class="modal-content">
+            <h2>Generate Licenses</h2>
+            <form id="licenseForm">
+                <div class="input-group">
+                    <label>Quantity</label>
+                    <input type="number" id="licenseCount" min="1" max="1000" value="1" required>
+                </div>
+                <div class="input-group">
+                    <label>Subscription Type</label>
+                    <select id="licenseType" required>
+                        <option value="Basic">Basic</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Enterprise">Enterprise</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Duration (Days)</label>
+                    <input type="number" id="licenseDuration" min="1" value="30" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Generate</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('licenseModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
